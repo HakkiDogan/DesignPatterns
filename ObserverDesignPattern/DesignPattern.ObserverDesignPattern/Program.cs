@@ -1,3 +1,6 @@
+using DesignPattern.ObserverDesignPattern.DAL;
+using DesignPattern.ObserverDesignPattern.ObserverPattern;
+
 namespace DesignPattern.ObserverDesignPattern
 {
     public class Program
@@ -7,7 +10,17 @@ namespace DesignPattern.ObserverDesignPattern
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();           
+            builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<Context>();
+            builder.Services.AddIdentity<AppUser,AppRole>().AddEntityFrameworkStores<Context>();
+            builder.Services.AddSingleton<ObserverObject>(sp =>
+            {
+                ObserverObject observer = new();
+                observer.RegisterObserver(new CreateWelcomeMessage(sp));
+                observer.RegisterObserver(new CreateMagazineAnnouncement(sp));
+                observer.RegisterObserver(new CreateDiscountCode(sp));
+                return observer;
+            });
 
             var app = builder.Build();
 
